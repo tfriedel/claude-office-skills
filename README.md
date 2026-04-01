@@ -6,6 +6,13 @@ Professional Office document creation and editing workflows for the command line
 
 This repository packages the same Office document manipulation skills used by [Claude desktop](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude) for use with [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) (the CLI version). You get the full power of Claude's document creation capabilities in your terminal, ready to integrate with scripts, CI/CD pipelines, or automated workflows.
 
+update 2026-04-01:
+This repo was published before Anthropic made these skills public themselves.
+For anyone interested in this I suggest you rather have a look at the official repo as the skills there may be getting updates:
+
+https://github.com/anthropics/skills/tree/main/skills
+
+
 ## Supported Formats
 
 - **PowerPoint (PPTX)** - Create presentations from scratch or templates, with HTML-to-PPTX conversion
