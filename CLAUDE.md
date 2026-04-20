@@ -52,10 +52,10 @@ This prevents reinventing workflows that already exist in the skills documentati
 
 ### Two-Phase Approach for Complex Operations
 Most OOXML editing workflows follow this pattern:
-1. **Unpack**: Extract the Office file to raw XML using `venv/bin/python ooxml/scripts/unpack.py`
+1. **Unpack**: Extract the Office file to raw XML using `.venv/bin/python ooxml/scripts/unpack.py`
 2. **Edit**: Modify XML files directly
-3. **Validate**: Check changes using `venv/bin/python ooxml/scripts/validate.py --original <file>`
-4. **Pack**: Repackage to Office file using `venv/bin/python ooxml/scripts/pack.py`
+3. **Validate**: Check changes using `.venv/bin/python ooxml/scripts/validate.py --original <file>`
+4. **Pack**: Repackage to Office file using `.venv/bin/python ooxml/scripts/pack.py`
 
 ### Read-First Policy
 All SKILL.md files must be read **completely** before starting work. Never set range limits when reading these files - they contain critical workflow steps and validation requirements.
@@ -84,14 +84,29 @@ Where `<fitting-name-for-document>` is a descriptive, lowercase, hyphenated name
 ## Development Setup
 
 ### Python Environment
-The repository uses a Python virtual environment:
+The repository uses a Python virtual environment managed by `uv`.
+
+**CRITICAL**: Always use `uv` for environment and package management. NEVER use `pip`, `pip install`, or manually edit the virtual environment.
 
 ```bash
-# Install/update dependencies
-venv/bin/pip install -r requirements.txt
+# Install/sync all dependencies from pyproject.toml / uv.lock
+uv sync
+
+# Add a new package
+uv add <package-name>
+
+# Add a development-only package
+uv add --dev <package-name>
+
+# Remove a package
+uv remove <package-name>
+
+# Upgrade packages
+uv lock --upgrade
+uv sync
 ```
 
-**CRITICAL**: Always use `venv/bin/python` for all Python commands. NEVER use system Python or assume venv is activated. All Python commands in this document use explicit venv paths.
+**CRITICAL**: Always use `.venv/bin/python` for all Python commands. NEVER use system Python or assume .venv is activated. All Python commands in this document use explicit .venv paths.
 
 ### Node.js Dependencies
 JavaScript tools for html2pptx workflow:
@@ -113,42 +128,42 @@ Required system dependencies (should be pre-installed):
 
 **Text extraction**:
 ```bash
-venv/bin/python -m markitdown file.pptx
+.venv/bin/python -m markitdown file.pptx
 ```
 
 **Unpack for XML editing**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/unpack.py input.pptx outputs/<document-name>/unpacked/
+.venv/bin/python public/pptx/ooxml/scripts/unpack.py input.pptx outputs/<document-name>/unpacked/
 ```
 
 **Validate after editing**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/validate.py outputs/<document-name>/unpacked/ --original input.pptx
+.venv/bin/python public/pptx/ooxml/scripts/validate.py outputs/<document-name>/unpacked/ --original input.pptx
 ```
 
 **Repack to PPTX**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/pack.py outputs/<document-name>/unpacked/ outputs/<document-name>/final.pptx
+.venv/bin/python public/pptx/ooxml/scripts/pack.py outputs/<document-name>/unpacked/ outputs/<document-name>/final.pptx
 ```
 
 **Create thumbnail grid for visual analysis**:
 ```bash
-venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/thumbnails [--cols 4]
+.venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/thumbnails [--cols 4]
 ```
 
 **Rearrange slides (duplicate, reorder, delete)**:
 ```bash
-venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/rearranged.pptx 0,5,5,12,3
+.venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/rearranged.pptx 0,5,5,12,3
 ```
 
 **Extract text inventory**:
 ```bash
-venv/bin/python public/pptx/scripts/inventory.py presentation.pptx outputs/<document-name>/inventory.json
+.venv/bin/python public/pptx/scripts/inventory.py presentation.pptx outputs/<document-name>/inventory.json
 ```
 
 **Replace text from JSON**:
 ```bash
-venv/bin/python public/pptx/scripts/replace.py input.pptx outputs/<document-name>/replacements.json outputs/<document-name>/output.pptx
+.venv/bin/python public/pptx/scripts/replace.py input.pptx outputs/<document-name>/replacements.json outputs/<document-name>/output.pptx
 ```
 
 **Convert HTML to PPTX** (requires Node.js):
@@ -212,15 +227,15 @@ See `public/xlsx/SKILL.md` for comprehensive formula and formatting standards. K
 
 ### PPTX Creation from Template
 1. Create output directory: `mkdir -p outputs/<document-name>/`
-2. Extract text: `venv/bin/python -m markitdown template.pptx`
-3. Create thumbnail grid: `venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/template`
+2. Extract text: `.venv/bin/python -m markitdown template.pptx`
+3. Create thumbnail grid: `.venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/template`
 4. Analyze template and save inventory to `outputs/<document-name>/template-inventory.md` (list ALL slides with 0-based indices)
 5. Create outline with template mapping (verify slide indices are within range)
-6. Rearrange slides: `venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/working.pptx 0,34,34,50,52`
-7. Extract text inventory: `venv/bin/python public/pptx/scripts/inventory.py outputs/<document-name>/working.pptx outputs/<document-name>/text-inventory.json`
+6. Rearrange slides: `.venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/working.pptx 0,34,34,50,52`
+7. Extract text inventory: `.venv/bin/python public/pptx/scripts/inventory.py outputs/<document-name>/working.pptx outputs/<document-name>/text-inventory.json`
 8. Read entire `text-inventory.json` (no range limits)
 9. Generate replacement JSON to `outputs/<document-name>/replacements.json` with proper paragraph formatting (bold, bullets, alignment, colors)
-10. Apply replacements: `venv/bin/python public/pptx/scripts/replace.py outputs/<document-name>/working.pptx outputs/<document-name>/replacements.json outputs/<document-name>/final.pptx`
+10. Apply replacements: `.venv/bin/python public/pptx/scripts/replace.py outputs/<document-name>/working.pptx outputs/<document-name>/replacements.json outputs/<document-name>/final.pptx`
 
 **CRITICAL**: Shapes not listed in replacement JSON are automatically cleared. Only shapes with "paragraphs" field get new content.
 
@@ -239,7 +254,7 @@ All skill-based workflows follow the **Output Directory Convention** (see Key Ar
 
 After any OOXML editing (PPTX/DOCX), **always validate immediately**:
 ```bash
-venv/bin/python public/[format]/ooxml/scripts/validate.py <dir> --original <file>
+.venv/bin/python public/[format]/ooxml/scripts/validate.py <dir> --original <file>
 ```
 
 Fix validation errors before proceeding. Never pack a file without validating first.
